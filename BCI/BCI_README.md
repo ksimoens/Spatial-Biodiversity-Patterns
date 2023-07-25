@@ -165,6 +165,14 @@ R script to generate the plots.
 The script requires csv files generated in the Python scripts.  
 The code contains the following functions:
 
+- **combinePCF()** : collects and summarises the empirical PCF from the replicate files
+
+- **bessel()** : the theoretical PCF equation
+
+- **calcPCF()** : calculates and summarises the theoretical PCF from the replicate parameters
+
+- **plotPCF()** : plots the empirical and theoretical PCF
+
 - **calcsSADdata()** : calculates the empirical SAD of a disconnected subset of samples  
 
 - **plotsSAD_discrete()** : plots the spatial SAD at a disconnected scale (Discrete Analytical Model)
@@ -395,7 +403,10 @@ Columns are:
 This directory contains all the plots generated in **BCI_plot.R**.  
 'X' denotes the number of samples from which the PCF is calculated.  
 The directory contains the png files corresponding with the csv files in the output.  
-The names of the png files are identical to the names of the csv files.
+The names of the png files are identical to the names of the csv files.  
+Additionally:
+
+- **PCF_X.png** : plot of the summarised empirical and theoretical PCF
 
 ---
 

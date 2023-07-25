@@ -18,6 +18,93 @@ library(tidyverse)
 # ----------------------------------------------------------
 
 
+# get the empirical PCF
+combinePCF <- function(n_sub){
+
+	# list all replicate files
+	file_list <- list.files(path=paste0('PCF/PCF_',n_sub),full.names=TRUE)
+
+	# final container
+	df_final <- matrix(nrow=0,ncol=2) %>% as.data.frame()
+	names(df_final) <- c('distance','PCF')
+
+	# for each replicte
+	for(file in file_list){
+
+		rep <- read.csv(file,header=TRUE,row.names=1) %>% 
+				dplyr::filter(distance < 500)
+
+		df_final <- rbind(df_final,rep)
+
+	}
+
+	# summarise over distance
+	df_final <- df_final %>% dplyr::group_by(distance) %>%
+								dplyr::summarise(PCF=mean(PCF)) 
+
+	return(df_final)
+
+}
+
+
+# theoretical PCF
+bessel <- function(R,rho,lambd){
+
+	return(1 + 1/2/pi*(rho/lambd)^2*besselK(R/lambd,0))
+
+}
+
+
+# get the theoretical PCF
+calcPCF <- function(n_sub){
+
+	# get the list with the results of the empirical PCF
+	rep_list <- read.csv(paste0('PCF/Output_',n_sub,'/rep_list_',n_sub,'.csv'),header=TRUE,row.names=NULL)
+	
+	# get a list of distance values
+	R_list <- 10:500
+
+	# create container for final results
+	df_final <- matrix(nrow=0,ncol=2) %>% as.data.frame()
+	names(df_final) <- c('distance','PCF')
+
+	for(i in 1:nrow(rep_list)){
+		df_final <- rbind(df_final,
+							data.frame(distance=R_list,PCF=bessel(R_list,rep_list[i,1],rep_list[i,2])) )
+	}
+
+	df_final <- df_final %>% dplyr::group_by(distance) %>%
+								dplyr::summarise(PCFmean=mean(PCF),PCFsd=sd(PCF))
+	
+	return(df_final)
+
+}
+
+
+# plot the empirical and fitted PCF
+plotPCF <- function(n_sub){
+
+	# get the empirical PCF
+	PCF_emp <- combinePCF(n_sub)
+	# get the theoretical PCF
+	PCF_the <- calcPCF(n_sub)
+
+	# create a dataframe for the polygon
+	PCF_pol <- data.frame(distance=c(PCF_the$distance,rev(PCF_the$distance)),
+							rib=c(PCF_the$PCFmean-3*PCF_the$PCFsd,rev(PCF_the$PCFmean+3*PCF_the$PCFsd)))
+
+	# make the plot
+	p <- ggplot() + geom_polygon(data=PCF_pol,aes(x=distance,y=rib),fill='red',alpha=0.4) +
+					geom_line(data=PCF_the,aes(x=distance,y=PCFmean)) + 
+					geom_point(data=PCF_emp,aes(x=distance,y=PCF)) +
+					theme_bw() + xlab('distance (m)') + ylab('pair correlation function') +
+					ylim(0,max(PCF_the$PCFmean+3*PCF_the$PCFsd))
+
+	p %>% ggsave(paste0('PCF/Output_',n_sub,'/plots/PCF_',n_sub,'.png'),.,device='png',width=15,height=10,units='cm')
+
+}
+
+
 # calculate the empirical spatial SAD for a subset of samples 
 # requires: n_sub = the number of samples in the subset
 #			n_rep = the number of replicate sampling for the empirical data
@@ -412,6 +499,7 @@ plotcSAR_continuous <- function(n_sub){
 
 # make the plots
 # get n_sub = the number of samples in the subsample to start with
+# uncomment to manually run these plots and set n_sub
 PAR_file <- file('PCF/PARAM_file.txt',open='r')
 on.exit(close(PAR_file))
 PAR_file_lines <- readLines(PAR_file)
@@ -425,6 +513,8 @@ if(n_sub == 800){
 
 # create the directory for the plots
 dir.create(paste0('PCF/Output_',n_sub,'/plots'))
+
+plotPCF(n_sub)
 
 plotsSAD_discrete(n_sub,n_rep)
 plotSAD0_discrete(n_sub)
