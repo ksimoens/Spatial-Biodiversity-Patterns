@@ -7,7 +7,7 @@
 #
 # Calculatons in the Analytical Models
 #####################################
-# Calculations for the DISCRETE Analytical Model
+# Calculations for the CONTINUOUS Analytical Model and BCI data set
 #####################################
 
 
@@ -144,7 +144,8 @@ def sSAD(R0,S0,rho,lambd,n,R,N_max):
 		S_list = np.append(S_list,I_num / I_0)
 		N_list = np.append(N_list,N)
 
-		N += 1
+		# continuous distribution
+		N += 0.01
 
 	# create the dataframe and write out
 	darray = np.concatenate((N_list,S_list)).reshape((-1, 2), order='F')
@@ -251,7 +252,9 @@ def calcReplicates(n_sub):
 	# subset parameters 
 	As = n_sub*Ai 				# combined surface area of the subset (m^2)
 	Rs = np.sqrt(As/np.pi)		# corresponding radius (m)
+
 	# R at which to calculate the SAD connected area 
+	# if all samples are included, calculate the SAD for 100 samples
 	if(n_sub == 800):
 		Rc = np.sqrt(100*Ai/np.pi)
 	else:

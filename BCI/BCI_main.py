@@ -27,14 +27,14 @@ import shutil
 import time
 
 # ----------------------------------------------------------
-
+'''
 # calculate the empirical disconnected SAR
 if(not os.path.exists("BCI_dSAR_emp.csv")):
 	SAC_emp()
 # calculate the empirical connected SAR
 if(not os.path.exists("BCI_cSAR_emp.csv")):
 	SAR_emp()
-
+'''
 # create the 'PCF' directory if it does not exist
 if(not os.path.exists("PCF")):
 	os.mkdir("PCF")

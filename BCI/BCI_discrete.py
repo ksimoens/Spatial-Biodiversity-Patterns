@@ -7,7 +7,7 @@
 #
 # Calculatons in the Analytical Models
 #####################################
-# Calculations for the DISCRETE Analytical Model
+# Calculations for the DISCRETE Analytical Model and BCI data set
 #####################################
 
 
@@ -381,10 +381,12 @@ def calcReplicates(n_sub):
 	Rs = np.sqrt(As/np.pi)		# corresponding radius (m)
 
 	# R at which to calculate the SAD connected area 
+	# if all samples are included, calculate SAD for 100 samples
 	if(n_sub == 800):
-		Rc = np.sqrt(100*Ai/np.pi)
+		Ac = 100.*Ai
 	else:
-		Rc = Rs
+		Ac = As 
+	Rc = np.sqrt(Ac/np.pi)
 
 	# get the replicate list with the empirical data (created in BCI_PCF.py)
 	rep_list = pd.read_csv('PCF/Output_' +str(n_sub)+ '/rep_list_' + str(n_sub) + '.csv')
@@ -393,6 +395,7 @@ def calcReplicates(n_sub):
 	rep_list['S0'] = np.nan 		# total number of species
 	rep_list['np'] = np.nan 		# mean density of individuals per species from subset (m^-2)
 	rep_list['n'] = np.nan 			# mean density of individuals per species from total estimate (m^-2)
+	rep_list['Ss'] = np.nan 		# number of species in a connected subarea of size As
 	rep_list['Nmean'] = np.nan 		# mean number of individuals per species in total area
 	rep_list['Nsd'] = np.nan 		# variance in the number of individuals per species in total area
 	rep_list['r'] = np.nan 			# r parameter
@@ -429,8 +432,15 @@ def calcReplicates(n_sub):
 		rep_list['xi'][i] = xi_function(rep_list['Nmean'][i],rep_list['Nsd'][i])
 		rep_list['xip'][i] = xip(rep_list['xi'][i], As/A0)
 
+		sum0 = summation(rep_list['xi'][i],rep_list['r'][i])/rep_list['S0'][i]
+		Nmean_R = mean(Rs,n_down)
+		Nsigma_R = sigma_limit(Rs,n_down,rep_list['rho'][i],rep_list['lambd'][i])
+		r_R = r_function(Nmean_R,Nsigma_R)
+		xi_R = xi_function(Nmean_R,Nsigma_R)
+		rep_list['Ss'][i] = summation(xi_R,r_R) / sum0
+
 		# create the sSAD and add to the container
-		sSAD_list = pd.concat( [sSAD_list , sSAD(R0,rep_list['S0'][i],rep_list['xi'][i],rep_list['r'][i],n_down,As/A0,np.log2(rep_list['Nsum'][i]))] )
+		sSAD_list = pd.concat( [sSAD_list , sSAD(R0,rep_list['S0'][i],rep_list['xi'][i],rep_list['r'][i],n_down,Ac/A0,np.log2(rep_list['Nsum'][i]))] )
 		# create the SAD for the entire area and add to the container
 		SAD0_list = pd.concat( [SAD0_list , SAD0(rep_list['xi'][i],rep_list['r'][i],rep_list['S0'][i],18)] )
 		# create the SAD for a connected subarea of equal size as the combined samples

@@ -95,8 +95,8 @@ plotPCF <- function(n_sub){
 
 	# make the plot
 	p <- ggplot() + geom_polygon(data=PCF_pol,aes(x=distance,y=rib),fill='red',alpha=0.4) +
-					geom_line(data=PCF_the,aes(x=distance,y=PCFmean)) + 
 					geom_point(data=PCF_emp,aes(x=distance,y=PCF)) +
+					geom_line(data=PCF_the,aes(x=distance,y=PCFmean),col='red') + 
 					theme_bw() + xlab('distance (m)') + ylab('pair correlation function') +
 					ylim(0,max(PCF_the$PCFmean+3*PCF_the$PCFsd))
 
@@ -183,7 +183,7 @@ plotsSAD_discrete <- function(n_sub,n_rep){
 
 	# make the plot
 	p <- ggplot() + geom_bar(data=df_emp,aes(x=N,y=Smean),stat='identity') +
-					geom_errorbar(data=df_emp,aes(x=N,ymin=Smean-3*Ssd,ymax=Smean+3*Ssd),width=0.1) +
+					geom_errorbar(data=df_emp,aes(x=N,ymin=Smean-Ssd,ymax=Smean+Ssd),width=0.1) +
 					geom_polygon(data=df_pol,aes(x=N,y=rib),fill='red',alpha=0.4) +
 					geom_line(data=df_the,aes(x=N,y=Smean)) + 
 					scale_x_continuous(labels=0:max(df_emp$N),breaks=0:max(df_emp$N)) +
@@ -362,8 +362,9 @@ plotdSAR_discrete <- function(n_sub){
 	# make the plot
 	p <- ggplot() + geom_polygon(data=dSAR_pol,aes(x=R,y=rib),fill='red',alpha=0.4) +
 					geom_point(data=dSAR_emp,aes(x=R,y=S)) + 
-					geom_line(data=dSAR_the,aes(x=R,y=Smean)) + 
-					theme_bw() + xlab('radius (m)') + ylab('number of species')
+					geom_line(data=dSAR_the,aes(x=R,y=Smean),col='red') + 
+					theme_bw() + xlab('R (m)') + ylab('number of species') + 
+					xlim(0,NA) + ylim(0,NA)
 
 	p %>% ggsave(paste0('PCF/Output_',n_sub,'/plots/dSAR_',n_sub,'_discrete.png'),.,device='png',width=15,height=10,units='cm')
 
@@ -387,7 +388,8 @@ plotcSAR_discrete <- function(n_sub){
 	p <- ggplot() + geom_polygon(data=cSAR_pol,aes(x=R,y=rib),fill='red',alpha=0.4) +
 					geom_point(data=cSAR_emp,aes(x=R,y=S)) + 
 					geom_line(data=cSAR_the,aes(x=R,y=Smean)) + 
-					theme_bw() + xlab('radius (m)') + ylab('number of species')
+					theme_bw() + xlab('R (m)') + ylab('number of species') +
+					xlim(0,NA) + ylim(0,NA)
 
 	p %>% ggsave(paste0('PCF/Output_',n_sub,'/plots/cSAR_',n_sub,'_discrete.png'),.,device='png',width=15,height=10,units='cm')
 
@@ -467,7 +469,8 @@ plotdSAR_continuous <- function(n_sub){
 	p <- ggplot() + geom_polygon(data=dSAR_pol,aes(x=R,y=rib),fill='red',alpha=0.4) +
 					geom_point(data=dSAR_emp,aes(x=R,y=S)) + 
 					geom_line(data=dSAR_the,aes(x=R,y=Smean)) + 
-					theme_bw() + xlab('radius (m)') + ylab('number of species')
+					theme_bw() + xlab('R (m)') + ylab('number of species') + 
+					xlim(0,NA) + ylim(0,NA)
 
 	p %>% ggsave(paste0('PCF/Output_',n_sub,'/plots/dSAR_',n_sub,'_continuous.png'),.,device='png',width=15,height=10,units='cm')
 
@@ -491,7 +494,8 @@ plotcSAR_continuous <- function(n_sub){
 	p <- ggplot() + geom_polygon(data=cSAR_pol,aes(x=R,y=rib),fill='red',alpha=0.4) +
 					geom_point(data=cSAR_emp,aes(x=R,y=S)) + 
 					geom_line(data=cSAR_the,aes(x=R,y=Smean)) + 
-					theme_bw() + xlab('radius (m)') + ylab('number of species')
+					theme_bw() + xlab('R (m)') + ylab('number of species') +
+					xlim(0,NA) + ylim(0,NA)
 
 	p %>% ggsave(paste0('PCF/Output_',n_sub,'/plots/cSAR_',n_sub,'_continuous.png'),.,device='png',width=15,height=10,units='cm')
 
@@ -514,7 +518,10 @@ if(n_sub == 800){
 # create the directory for the plots
 dir.create(paste0('PCF/Output_',n_sub,'/plots'))
 
-plotPCF(n_sub)
+# plot the PCF only if the empirical PCF are available
+if(file.exists(paste0('PCF/PCF_',n_sub,'/PCF_',n_sub,'_0.csv'))){
+	plotPCF(n_sub)
+}
 
 plotsSAD_discrete(n_sub,n_rep)
 plotSAD0_discrete(n_sub)

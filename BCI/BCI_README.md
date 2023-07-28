@@ -416,6 +416,17 @@ The project shows an example of a complete run for a subset of 80 samples.
 The sampling is replicated 100 times.   
 The directories contain all files listed above. 
 
+#### Output_800 + PCF_800
+
+These directories contain the results of the analysis with all 800 samples.  
+Only one 'replicate' is available.
+
+#### Output_40 + Output_320 + Output_640
+
+The results of the analysis with 40, 320 and 640 samples as starting point.  
+The sampling is replicated 100 times.  
+The files only contain the **rep_list_X.csv** files with the parameter results.
+
 
 ## Instructions
 
@@ -425,5 +436,5 @@ The directories contain all files listed above.
 !!! The programme uses 4 computer nodes. Change this in **BCI_main.py** if necessary.  
 3. or run the methods in BCI_main.py and the BCI_plot.R seperately  
 4. Change the parameters in **BCI_main.py** as desired.  
-The code should work for *n_sub* = 40, 80, 160, 320, 480, 800.  
+The code should work for *n_sub* = 40, 80, 160, 320, 480, 640, 800.  
 For now, the code only runs for the 800x25x25 subdivision of the area in **BCI_grid_25_25.csv**.
