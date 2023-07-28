@@ -123,7 +123,7 @@ def fitMF():
 	i_min = np.nanargmin(LL)
 	# and the corresponding parameters
 	res = np.array([r[i_min],xi[i_min]])
-	
+	print(res)
 	return(res)
 
 
